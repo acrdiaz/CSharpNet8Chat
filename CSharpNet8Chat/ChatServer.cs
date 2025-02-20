@@ -6,6 +6,7 @@ public class ChatServer
 {
     private TcpListener _server;
     private bool _isRunning;
+    private List<TcpClient> _clients;
 
     public ChatServer(string ipAddress, int port)
     {
@@ -13,6 +14,7 @@ public class ChatServer
         _server.Start();
 
         _isRunning = true;
+        _clients = new List<TcpClient>();
         Task.Run(() => AcceptClientsAsync());
     }
 
@@ -21,6 +23,8 @@ public class ChatServer
         while (_isRunning)
         {
             var client = await _server.AcceptTcpClientAsync();
+            _clients.Add(client);
+            BroadcastMessage($"Client connected: {client.Client.RemoteEndPoint}");
             await HandleClientAsync(client);
         }
     }
@@ -37,11 +41,24 @@ public class ChatServer
 
             var message = Encoding.UTF8.GetString(buffer, 0, byteCount);
             Console.WriteLine($"Received: {message}");
-
-            var response = Encoding.UTF8.GetBytes($"[{DateTime.UtcNow}] Received: {message}");
-            await stream.WriteAsync(response, 0, response.Length);
+            BroadcastMessage(message, client);
         }
 
+        _clients.Remove(client);
         client.Close();
+        BroadcastMessage($"Client disconnected: {client.Client.RemoteEndPoint}");
+    }
+
+    private void BroadcastMessage(string message, TcpClient excludeClient = null)
+    {
+        var buffer = Encoding.UTF8.GetBytes(message);
+
+        foreach (var client in _clients)
+        {
+            if (client == excludeClient) continue;
+
+            var stream = client.GetStream();
+            stream.Write(buffer, 0, buffer.Length);
+        }
     }
 }
