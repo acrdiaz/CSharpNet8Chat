@@ -1,6 +1,8 @@
 ﻿using System.Net.Sockets;
 using System.Text;
 
+namespace CSharpNet8Chat.Client;
+
 public class ChatClient
 {
     private TcpClient _client;

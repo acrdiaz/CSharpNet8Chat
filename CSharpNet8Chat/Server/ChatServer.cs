@@ -2,6 +2,8 @@
 using System.Net;
 using System.Text;
 
+namespace CSharpNet8Chat.Server;
+
 public class ChatServer
 {
     private TcpListener _server;
