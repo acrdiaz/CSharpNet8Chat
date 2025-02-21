@@ -21,26 +21,19 @@ class ChatHub : Hub
 
     public override async Task OnConnectedAsync()
     {
-        // AA1 this is from copilot -- i do not trust copilot
-        //await Clients.All.SendAsync(
-        //    "ReceiveMessage", 
-        //    "Server", 
-        //    $"{Context.ConnectionId} joined the chat.");
-
-        // AA1 to test this
         await base.OnConnectedAsync();
-        await Clients.All.SendAsync("ReceiveMessage", "System", $"{Context.ConnectionId} has joined the chat.");
+        await Clients.All.SendAsync(
+            "ReceiveMessage", 
+            "System", 
+            $"{Context.ConnectionId} has joined the chat.");
     }
 
     public override async Task OnDisconnectedAsync(Exception exception)
     {
-        //await Clients.All.SendAsync(
-        //    "ReceiveMessage", 
-        //    "Server", 
-        //    $"{Context.ConnectionId} left the chat.");
-
-        // AA1 to test this
         await base.OnDisconnectedAsync(exception);
-        await Clients.All.SendAsync("ReceiveMessage", "System", $"{Context.ConnectionId} has left the chat.");
+        await Clients.All.SendAsync(
+            "ReceiveMessage", 
+            "System", 
+            $"{Context.ConnectionId} has left the chat.");
     }
 }
