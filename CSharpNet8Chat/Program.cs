@@ -8,7 +8,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting; // Add this using directive
 using Microsoft.AspNetCore.Http; // Add this using directive
 
-//using Microsoft.AspNetCore.Builder;
 
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -40,22 +39,12 @@ if (!string.IsNullOrWhiteSpace(response)
     Environment.Exit(0); // Ensure the application exits cleanly
 }
 
+
 // Run as Client
-//var client = new ChatClient("127.0.0.1", 5000);
-//Console.WriteLine("Connected to the server.");
-
-//while (true)
-//{
-//    var message = Console.ReadLine();
-//    if (!string.IsNullOrWhiteSpace(message))
-//    {
-//        await client.SendMessageAsync(message);
-//    }
-//}
-
+string url = "http://localhost:5000/chatHub";
 
 var connection = new HubConnectionBuilder()
-            .WithUrl("http://localhost:5000/chatHub")
+            .WithUrl(url)
             .Build();
 
 connection.On<string, string>("ReceiveMessage", (user, message) =>
@@ -68,27 +57,65 @@ Console.WriteLine("Connected to the server.");
 
 while (true)
 {
-    var message = Console.ReadLine();
-    await connection.InvokeAsync("SendMessage", "ConsoleClient", message);
+    Console.WriteLine("Enter command (private/group/join/leave):");
+    var command = Console.ReadLine();
+
+    if (command.StartsWith("private"))
+    {
+        var parts = command.Split(' ', 3);
+        if (parts.Length == 3)
+        {
+            var toUser = parts[1];
+            var message = parts[2];
+            await connection.InvokeAsync("SendPrivateMessage", toUser, message);
+        }
+        else
+        {
+            Console.WriteLine("Invalid command format. Use: private <username> <message>");
+        }
+    }
+    else if (command.StartsWith("group"))
+    {
+        var parts = command.Split(' ', 3);
+        if (parts.Length == 3)
+        {
+            var groupName = parts[1];
+            var message = parts[2];
+            await connection.InvokeAsync("SendGroupMessage", groupName, message);
+        }
+        else
+        {
+            Console.WriteLine("Invalid command format. Use: group <groupname> <message>");
+        }
+    }
+    else if (command.StartsWith("join"))
+    {
+        var parts = command.Split(' ', 2);
+        if (parts.Length == 2)
+        {
+            var groupName = parts[1];
+            await connection.InvokeAsync("JoinGroup", groupName);
+        }
+        else
+        {
+            Console.WriteLine("Invalid command format. Use: join <groupname>");
+        }
+    }
+    else if (command.StartsWith("leave"))
+    {
+        var parts = command.Split(' ', 2);
+        if (parts.Length == 2)
+        {
+            var groupName = parts[1];
+            await connection.InvokeAsync("LeaveGroup", groupName);
+        }
+        else
+        {
+            Console.WriteLine("Invalid command format. Use: leave <groupname>");
+        }
+    }
+    else
+    {
+        Console.WriteLine("Unknown command. Use: private/group/join/leave");
+    }
 }
-
-
-
-
-/*
-
-│36: dotnet add package Microsoft.AspNetCore.SignalR             │
-│37:  dotnet add package Microsoft.Extensions.Hosting            │
-│38: dotnet add package Microsoft.AspNetCore.SignalR.Client      │
-│39: dotnet add package Microsoft.AspNetCore.SignalR             │
-│40: dotnet add package Microsoft.Extensions.Hosting             │
-│41: using Microsoft.AspNetCore.Builder;                         │
-│42: dotnet --version                                            │
-│43: dotnet add package Microsoft.Extensions.Configuration.Binder│
-│44: dotnet add package Microsoft.Extensions.Hosting             │
-│45: code .                                                      │
-│46: dotnet add package Microsoft.Extensions.DependencyInjection │
-│47: dotnet add package Microsoft.AspNetCore                     │
-│48: dotnet add package Microsoft.AspNetCore.App
-
-*/
