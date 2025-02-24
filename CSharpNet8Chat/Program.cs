@@ -1,17 +1,12 @@
-﻿// Prompt the user to select to run as Server or Client
-using CSharpNet8Chat.Client;
-using CSharpNet8Chat.Server;
+﻿using CSharpNet8Chat.Server;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Hosting; // Add this using directive
-using Microsoft.AspNetCore.Http; // Add this using directive
-
 
 using Microsoft.AspNetCore.SignalR.Client;
 
 
+// Prompt the user to select to run as Server or Client
 Console.WriteLine("Run as server? (Yes/No)");
 var response = Console.ReadLine();
 
